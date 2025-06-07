@@ -14,6 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Menu, LogOut, User, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface NavbarProps {
   onMenuToggle: () => void;
@@ -61,6 +62,8 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
       </div>
 
       <div className="flex items-center space-x-4">
+        <ThemeToggle />
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
