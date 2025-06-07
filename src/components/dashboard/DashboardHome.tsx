@@ -10,7 +10,8 @@ import {
   DollarSign,
   ArrowUpRight,
   ArrowDownRight,
-  MoreHorizontal
+  MoreHorizontal,
+  Settings
 } from 'lucide-react';
 
 const DashboardHome = () => {
