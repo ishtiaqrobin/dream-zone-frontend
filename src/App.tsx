@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,11 +12,19 @@ import SignupPage from "./components/auth/SignupPage";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import DashboardHome from "./components/dashboard/DashboardHome";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CreateLandTaxForm from "./components/dashboard/CreateLandTaxForm";
+import LandTaxRecords from "./components/dashboard/LandTaxRecords";
+import Users from "./components/dashboard/Users";
+import Analytics from "./components/dashboard/Analytics";
+import Reports from "./components/dashboard/Reports";
+import Settings from "./components/dashboard/Settings";
+import AddUser from "./components/dashboard/AddUser";
+import BalanceManagement from "./components/dashboard/BalanceManagement";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider defaultTheme="system" storageKey="dashboard-theme">
+  <ThemeProvider defaultTheme="light" storageKey="dashboard-theme">
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
@@ -37,10 +44,14 @@ const App = () => (
                 }
               >
                 <Route index element={<DashboardHome />} />
-                <Route path="analytics" element={<div className="p-6">Analytics Page - Coming Soon</div>} />
-                <Route path="users" element={<div className="p-6">Users Page - Coming Soon</div>} />
-                <Route path="reports" element={<div className="p-6">Reports Page - Coming Soon</div>} />
-                <Route path="settings" element={<div className="p-6">Settings Page - Coming Soon</div>} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="users" element={<Users />} />
+                <Route path="reports" element={<Reports />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="create-land-tax" element={<CreateLandTaxForm />} />
+                <Route path="land-tax-records" element={<LandTaxRecords />} />
+                <Route path="add-user" element={<AddUser />} />
+                <Route path="balance" element={<BalanceManagement />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -1,17 +1,19 @@
-
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Settings, 
-  BarChart3, 
-  FileText, 
-  Menu, 
-  X 
-} from 'lucide-react';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  BarChart3,
+  FileText,
+  Menu,
+  X,
+  Plus,
+  SquarePlus,
+  DollarSign,
+} from "lucide-react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -20,28 +22,43 @@ interface SidebarProps {
 
 const navigationItems = [
   {
-    name: 'Dashboard',
-    href: '/dashboard',
+    name: "Dashboard",
+    href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
-    name: 'Analytics',
-    href: '/dashboard/analytics',
-    icon: BarChart3,
+    name: "Create Land Tax",
+    href: "/dashboard/create-land-tax",
+    icon: SquarePlus,
   },
   {
-    name: 'Users',
-    href: '/dashboard/users',
-    icon: Users,
-  },
-  {
-    name: 'Reports',
-    href: '/dashboard/reports',
+    name: "Land Tax Records",
+    href: "/dashboard/land-tax-records",
     icon: FileText,
   },
   {
-    name: 'Settings',
-    href: '/dashboard/settings',
+    name: "Users",
+    href: "/dashboard/users",
+    icon: Users,
+  },
+  {
+    name: "Balance Management",
+    href: "/dashboard/balance",
+    icon: DollarSign,
+  },
+  {
+    name: "Analytics",
+    href: "/dashboard/analytics",
+    icon: BarChart3,
+  },
+  {
+    name: "Reports",
+    href: "/dashboard/reports",
+    icon: FileText,
+  },
+  {
+    name: "Settings",
+    href: "/dashboard/settings",
     icon: Settings,
   },
 ];
@@ -53,25 +70,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={onToggle}
         />
       )}
-      
+
       {/* Sidebar */}
-      <div className={cn(
-        "fixed left-0 top-0 z-50 h-full w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:relative lg:transform-none",
-        isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-      )}>
+      <div
+        className={cn(
+          "fixed left-0 top-0 z-50 h-full w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:relative lg:transform-none",
+          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <LayoutDashboard className="w-4 h-4 text-primary-foreground" />
+                <img src="/logo.png" alt="logo" className="w-8 h-8" />
               </div>
-              <span className="font-semibold text-lg">Dashboard</span>
+              <span className="font-semibold text-lg">Rayhan Kabir</span>
             </div>
             <Button
               variant="ghost"
@@ -116,9 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
 
           {/* Footer */}
           <div className="p-4 border-t border-border">
-            <div className="text-xs text-muted-foreground">
-              Version 1.0.0
-            </div>
+            <div className="text-xs text-muted-foreground">Version 1.0.0</div>
           </div>
         </div>
       </div>
