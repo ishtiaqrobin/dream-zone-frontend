@@ -211,7 +211,10 @@ const DashboardHome = () => {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
-            <Button asChild>
+            <Button
+              asChild
+              className="bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300"
+            >
               <Link to="/dashboard/add-user">
                 <Users className="mr-2 h-4 w-4" />
                 Add User

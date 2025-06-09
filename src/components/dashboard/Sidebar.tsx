@@ -87,7 +87,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 flex items-center justify-center">
                 <img src="/logo.png" alt="logo" className="w-8 h-8" />
               </div>
               <span className="font-semibold text-lg">Rayhan Kabir</span>
@@ -120,7 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                       className={cn(
                         "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-primary text-primary-foreground"
+                          ? "bg-primary text-primary-foreground dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300"
                           : "text-muted-foreground hover:text-foreground hover:bg-accent"
                       )}
                     >

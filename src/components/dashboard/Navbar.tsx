@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,7 +11,12 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { Menu, LogOut, User, Settings } from "lucide-react";
-import { useNavigate, useLocation, Link as RouterLink } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+  Link as RouterLink,
+  Link,
+} from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
@@ -32,6 +37,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const pathnames = location.pathname.split("/").filter((x) => x);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -80,7 +86,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
       <div className="flex items-center space-x-4">
         <ThemeToggle />
 
-        <DropdownMenu>
+        <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
@@ -100,14 +106,29 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+
             <DropdownMenuItem className="cursor-pointer">
-              <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+              <Link
+                to="/dashboard/profile"
+                className="flex items-center w-full"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </Link>
             </DropdownMenuItem>
+
             <DropdownMenuItem className="cursor-pointer">
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+              <Link
+                to="/dashboard/settings"
+                className="flex items-center w-full"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </Link>
             </DropdownMenuItem>
+
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />

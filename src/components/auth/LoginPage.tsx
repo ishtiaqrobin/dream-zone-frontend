@@ -54,7 +54,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 dark:bg-gray-900">
       <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center space-y-2">
           <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
@@ -115,13 +115,17 @@ const LoginPage = () => {
               <div className="text-right">
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-primary hover:underline font-medium"
+                  className="text-sm leading-[14px] text-primary hover:underline font-normal dark:text-[#f8fafc]"
                 >
                   Forgotten password?
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300"
+                disabled={isLoading}
+              >
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>

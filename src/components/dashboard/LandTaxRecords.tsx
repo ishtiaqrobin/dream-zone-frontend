@@ -36,6 +36,11 @@ const initialRecords: LandTaxRecord[] = [
   },
 ];
 
+const tableCellClass =
+  "border dark:border-gray-700 px-4 py-2 text-black dark:text-white";
+const tableHeaderClass = "bg-gray-100 dark:bg-gray-800 " + tableCellClass;
+const editCellClass = "border dark:border-gray-700 px-2 py-1";
+
 const LandTaxRecords: React.FC = () => {
   const [records, setRecords] = useState<LandTaxRecord[]>(initialRecords);
   const [editId, setEditId] = useState<number | null>(null);
@@ -77,31 +82,15 @@ const LandTaxRecords: React.FC = () => {
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
         <table className="min-w-full border dark:bg-gray-900 dark:border-gray-700">
           <thead>
-            <tr className="bg-gray-100 dark:bg-gray-800">
-              <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                Thana
-              </th>
-              <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                District
-              </th>
-              <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                Holding
-              </th>
-              <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                Khatian
-              </th>
-              <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                Officer
-              </th>
-              <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                Mouza
-              </th>
-              <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                Year
-              </th>
-              <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                Actions
-              </th>
+            <tr>
+              <th className={tableHeaderClass}>Thana</th>
+              <th className={tableHeaderClass}>District</th>
+              <th className={tableHeaderClass}>Holding</th>
+              <th className={tableHeaderClass}>Khatian</th>
+              <th className={tableHeaderClass}>Officer</th>
+              <th className={tableHeaderClass}>Mouza</th>
+              <th className={tableHeaderClass}>Year</th>
+              <th className={tableHeaderClass}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -109,7 +98,7 @@ const LandTaxRecords: React.FC = () => {
               <tr key={rec.id}>
                 {editId === rec.id ? (
                   <>
-                    <td className="border dark:border-gray-700 px-2 py-1">
+                    <td className={editCellClass}>
                       <input
                         name="thana"
                         value={editData.thana || ""}
@@ -117,7 +106,7 @@ const LandTaxRecords: React.FC = () => {
                         className="border rounded px-2 py-1 w-24"
                       />
                     </td>
-                    <td className="border dark:border-gray-700 px-2 py-1">
+                    <td className={editCellClass}>
                       <input
                         name="district"
                         value={editData.district || ""}
@@ -125,7 +114,7 @@ const LandTaxRecords: React.FC = () => {
                         className="border rounded px-2 py-1 w-24"
                       />
                     </td>
-                    <td className="border dark:border-gray-700 px-2 py-1">
+                    <td className={editCellClass}>
                       <input
                         name="holding"
                         value={editData.holding || ""}
@@ -133,7 +122,7 @@ const LandTaxRecords: React.FC = () => {
                         className="border rounded px-2 py-1 w-20"
                       />
                     </td>
-                    <td className="border dark:border-gray-700 px-2 py-1">
+                    <td className={editCellClass}>
                       <input
                         name="khatian"
                         value={editData.khatian || ""}
@@ -141,7 +130,7 @@ const LandTaxRecords: React.FC = () => {
                         className="border rounded px-2 py-1 w-20"
                       />
                     </td>
-                    <td className="border dark:border-gray-700 px-2 py-1">
+                    <td className={editCellClass}>
                       <input
                         name="officer"
                         value={editData.officer || ""}
@@ -149,7 +138,7 @@ const LandTaxRecords: React.FC = () => {
                         className="border rounded px-2 py-1 w-24"
                       />
                     </td>
-                    <td className="border dark:border-gray-700 px-2 py-1">
+                    <td className={editCellClass}>
                       <input
                         name="mouza"
                         value={editData.mouza || ""}
@@ -157,7 +146,7 @@ const LandTaxRecords: React.FC = () => {
                         className="border rounded px-2 py-1 w-20"
                       />
                     </td>
-                    <td className="border dark:border-gray-700 px-2 py-1">
+                    <td className={editCellClass}>
                       <input
                         name="year"
                         value={editData.year || ""}
@@ -165,7 +154,7 @@ const LandTaxRecords: React.FC = () => {
                         className="border rounded px-2 py-1 w-16"
                       />
                     </td>
-                    <td className="border dark:border-gray-700 px-2 py-1">
+                    <td className={editCellClass}>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={handleEditSave}
@@ -184,28 +173,14 @@ const LandTaxRecords: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <td className="border dark:border-gray-700 px-4 py-2">
-                      {rec.thana}
-                    </td>
-                    <td className="border dark:border-gray-700 px-4 py-2">
-                      {rec.district}
-                    </td>
-                    <td className="border dark:border-gray-700 px-4 py-2">
-                      {rec.holding}
-                    </td>
-                    <td className="border dark:border-gray-700 px-4 py-2">
-                      {rec.khatian}
-                    </td>
-                    <td className="border dark:border-gray-700 px-4 py-2">
-                      {rec.officer}
-                    </td>
-                    <td className="border dark:border-gray-700 px-4 py-2">
-                      {rec.mouza}
-                    </td>
-                    <td className="border dark:border-gray-700 px-4 py-2">
-                      {rec.year}
-                    </td>
-                    <td className="border dark:border-gray-700 px-4 py-2">
+                    <td className={tableCellClass}>{rec.thana}</td>
+                    <td className={tableCellClass}>{rec.district}</td>
+                    <td className={tableCellClass}>{rec.holding}</td>
+                    <td className={tableCellClass}>{rec.khatian}</td>
+                    <td className={tableCellClass}>{rec.officer}</td>
+                    <td className={tableCellClass}>{rec.mouza}</td>
+                    <td className={tableCellClass}>{rec.year}</td>
+                    <td className={tableCellClass}>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleEdit(rec)}

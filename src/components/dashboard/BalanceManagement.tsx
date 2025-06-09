@@ -64,6 +64,10 @@ const initialTransactions: Transaction[] = [
   },
 ];
 
+const tableCellClass =
+  "border dark:border-gray-700 px-4 py-2 text-black dark:text-white";
+const tableHeaderClass = "bg-gray-100 dark:bg-gray-800 " + tableCellClass;
+
 const BalanceManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [transactions, setTransactions] =
@@ -152,43 +156,25 @@ const BalanceManagement: React.FC = () => {
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
           <table className="min-w-full border dark:bg-gray-900 dark:border-gray-700">
             <thead>
-              <tr className="bg-gray-100 dark:bg-gray-800">
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  Name
-                </th>
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  Email
-                </th>
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  Role
-                </th>
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  Balance
-                </th>
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  Actions
-                </th>
+              <tr>
+                <th className={tableHeaderClass}>Name</th>
+                <th className={tableHeaderClass}>Email</th>
+                <th className={tableHeaderClass}>Role</th>
+                <th className={tableHeaderClass}>Balance</th>
+                <th className={tableHeaderClass}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
                 <tr key={user.id}>
-                  <td className="border dark:border-gray-700 px-4 py-2">
-                    {user.name}
-                  </td>
-                  <td className="border dark:border-gray-700 px-4 py-2">
-                    {user.email}
-                  </td>
-                  <td className="border dark:border-gray-700 px-4 py-2">
-                    {user.role}
-                  </td>
-                  <td className="border dark:border-gray-700 px-4 py-2">
-                    ৳ {user.balance}
-                  </td>
-                  <td className="border dark:border-gray-700 px-4 py-2">
+                  <td className={tableCellClass}>{user.name}</td>
+                  <td className={tableCellClass}>{user.email}</td>
+                  <td className={tableCellClass}>{user.role}</td>
+                  <td className={tableCellClass}>৳ {user.balance}</td>
+                  <td className={tableCellClass}>
                     <button
                       onClick={() => handleOpenModal(user)}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1 rounded transition flex items-center gap-1"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300 px-3 py-1 rounded transition flex items-center gap-1"
                     >
                       <DollarSign className="w-4 h-4" />
                       Manage Balance
@@ -209,34 +195,20 @@ const BalanceManagement: React.FC = () => {
         <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
           <table className="min-w-full border dark:bg-gray-900 dark:border-gray-700">
             <thead>
-              <tr className="bg-gray-100 dark:bg-gray-800">
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  Date
-                </th>
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  User
-                </th>
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  Type
-                </th>
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  Amount
-                </th>
-                <th className="border dark:border-gray-700 px-4 py-2 text-black dark:text-white">
-                  Description
-                </th>
+              <tr>
+                <th className={tableHeaderClass}>Date</th>
+                <th className={tableHeaderClass}>User</th>
+                <th className={tableHeaderClass}>Type</th>
+                <th className={tableHeaderClass}>Amount</th>
+                <th className={tableHeaderClass}>Description</th>
               </tr>
             </thead>
             <tbody>
               {transactions.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td className="border dark:border-gray-700 px-4 py-2">
-                    {transaction.date}
-                  </td>
-                  <td className="border dark:border-gray-700 px-4 py-2">
-                    {transaction.userName}
-                  </td>
-                  <td className="border dark:border-gray-700 px-4 py-2">
+                  <td className={tableCellClass}>{transaction.date}</td>
+                  <td className={tableCellClass}>{transaction.userName}</td>
+                  <td className={tableCellClass}>
                     <span
                       className={`inline-flex items-center gap-1 ${
                         transaction.type === "Add"
@@ -252,12 +224,8 @@ const BalanceManagement: React.FC = () => {
                       {transaction.type}
                     </span>
                   </td>
-                  <td className="border dark:border-gray-700 px-4 py-2">
-                    ৳ {transaction.amount}
-                  </td>
-                  <td className="border dark:border-gray-700 px-4 py-2">
-                    {transaction.description}
-                  </td>
+                  <td className={tableCellClass}>৳ {transaction.amount}</td>
+                  <td className={tableCellClass}>{transaction.description}</td>
                 </tr>
               ))}
             </tbody>
@@ -319,13 +287,13 @@ const BalanceManagement: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 bg-gray-400 text-white hover:bg-gray-500 py-2 rounded transition"
+                  className="flex-1 bg-gray-500 text-white hover:bg-gray-600 py-2 rounded transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 py-2 rounded transition"
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300 py-2 rounded transition"
                 >
                   {transactionType === "Add" ? "Add Balance" : "Deduct Balance"}
                 </button>

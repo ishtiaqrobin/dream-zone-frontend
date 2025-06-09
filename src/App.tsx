@@ -20,6 +20,7 @@ import Reports from "./components/dashboard/Reports";
 import Settings from "./components/dashboard/Settings";
 import AddUser from "./components/dashboard/AddUser";
 import BalanceManagement from "./components/dashboard/BalanceManagement";
+import Profile from "./components/dashboard/Profile";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
                 <Route path="land-tax-records" element={<LandTaxRecords />} />
                 <Route path="add-user" element={<AddUser />} />
                 <Route path="balance" element={<BalanceManagement />} />
+                <Route path="profile" element={<Profile />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
