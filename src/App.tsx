@@ -12,8 +12,8 @@ import SignupPage from "./components/auth/SignupPage";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import DashboardHome from "./components/dashboard/DashboardHome";
 import ProtectedRoute from "./components/ProtectedRoute";
-import CreateLandTaxForm from "./components/dashboard/CreateLandTaxForm";
-import LandTaxRecords from "./components/dashboard/LandTaxRecords";
+import SubmitTasks from "./components/dashboard/SubmitTaks";
+import LandTaxRecords from "./components/dashboard/TasksRecords";
 import Users from "./components/dashboard/Users";
 import Analytics from "./components/dashboard/Analytics";
 import Reports from "./components/dashboard/Reports";
@@ -49,8 +49,8 @@ const App = () => (
                 <Route path="users" element={<Users />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="settings" element={<Settings />} />
-                <Route path="create-land-tax" element={<CreateLandTaxForm />} />
-                <Route path="land-tax-records" element={<LandTaxRecords />} />
+                <Route path="submit-tasks" element={<SubmitTasks />} />
+                <Route path="task-records" element={<LandTaxRecords />} />
                 <Route path="add-user" element={<AddUser />} />
                 <Route path="balance" element={<BalanceManagement />} />
                 <Route path="profile" element={<Profile />} />

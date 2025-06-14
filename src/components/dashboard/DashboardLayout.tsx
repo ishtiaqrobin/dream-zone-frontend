@@ -36,7 +36,7 @@ const DashboardLayout: React.FC = () => {
       const last = pathnames[pathnames.length - 1];
       title = last.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
     }
-    document.title = `${title} | Rayhan Kabir`;
+    document.title = `${title} | Dream Zone`;
   }, [pathnames]);
 
   const toggleSidebar = () => {

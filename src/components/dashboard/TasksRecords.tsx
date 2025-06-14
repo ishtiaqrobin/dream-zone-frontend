@@ -2,37 +2,31 @@ import React, { useState } from "react";
 import { Pencil, Save, Trash, View, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
-interface LandTaxRecord {
+interface FacebookAccount {
   id: number;
-  thana: string;
-  district: string;
-  holding: string;
-  khatian: string;
-  officer: string;
-  mouza: string;
-  year: string;
+  cookies: string;
+  uid: string;
+  email: string;
+  password: string;
+  isVerified: boolean;
 }
 
-const initialRecords: LandTaxRecord[] = [
+const initialRecords: FacebookAccount[] = [
   {
     id: 1,
-    thana: "Dhanmondi",
-    district: "Dhaka",
-    holding: "1234",
-    khatian: "5678",
-    officer: "Abdul Karim",
-    mouza: "Mouza-1",
-    year: "2023-24",
+    cookies: "cookie123",
+    uid: "user123",
+    email: "user1@example.com",
+    password: "********",
+    isVerified: true,
   },
   {
     id: 2,
-    thana: "Kotwali",
-    district: "Chattogram",
-    holding: "4321",
-    khatian: "8765",
-    officer: "Rahim Uddin",
-    mouza: "Mouza-2",
-    year: "2022-23",
+    cookies: "cookie456",
+    uid: "user456",
+    email: "user2@example.com",
+    password: "********",
+    isVerified: false,
   },
 ];
 
@@ -41,22 +35,24 @@ const tableCellClass =
 const tableHeaderClass = "bg-gray-100 dark:bg-gray-800 " + tableCellClass;
 const editCellClass = "border dark:border-gray-700 px-2 py-1";
 
-const LandTaxRecords: React.FC = () => {
-  const [records, setRecords] = useState<LandTaxRecord[]>(initialRecords);
+const TasksRecords: React.FC = () => {
+  const [records, setRecords] = useState<FacebookAccount[]>(initialRecords);
   const [editId, setEditId] = useState<number | null>(null);
-  const [editData, setEditData] = useState<Partial<LandTaxRecord>>({});
+  const [editData, setEditData] = useState<Partial<FacebookAccount>>({});
 
   const handleDelete = (id: number) => {
     setRecords(records.filter((rec) => rec.id !== id));
   };
 
-  const handleEdit = (rec: LandTaxRecord) => {
+  const handleEdit = (rec: FacebookAccount) => {
     setEditId(rec.id);
     setEditData({ ...rec });
   };
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
+    const value =
+      e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    setEditData({ ...editData, [e.target.name]: value });
   };
 
   const handleEditSave = () => {
@@ -77,19 +73,17 @@ const LandTaxRecords: React.FC = () => {
   return (
     <div className="w-full p-8 bg-card rounded-lg shadow-sm border border-border text-foreground dark:bg-gray-900 dark:border-gray-700">
       <h2 className="text-2xl font-semibold mb-6 text-black dark:text-white">
-        Land Tax Records
+        Facebook Account Records
       </h2>
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
         <table className="min-w-full border dark:bg-gray-900 dark:border-gray-700">
           <thead>
             <tr>
-              <th className={tableHeaderClass}>Thana</th>
-              <th className={tableHeaderClass}>District</th>
-              <th className={tableHeaderClass}>Holding</th>
-              <th className={tableHeaderClass}>Khatian</th>
-              <th className={tableHeaderClass}>Officer</th>
-              <th className={tableHeaderClass}>Mouza</th>
-              <th className={tableHeaderClass}>Year</th>
+              <th className={tableHeaderClass}>Cookies</th>
+              <th className={tableHeaderClass}>User ID</th>
+              <th className={tableHeaderClass}>Email</th>
+              <th className={tableHeaderClass}>Password</th>
+              <th className={tableHeaderClass}>Verified</th>
               <th className={tableHeaderClass}>Actions</th>
             </tr>
           </thead>
@@ -100,58 +94,45 @@ const LandTaxRecords: React.FC = () => {
                   <>
                     <td className={editCellClass}>
                       <input
-                        name="thana"
-                        value={editData.thana || ""}
+                        name="cookies"
+                        value={editData.cookies || ""}
+                        onChange={handleEditChange}
+                        className="border rounded px-2 py-1 w-32"
+                      />
+                    </td>
+                    <td className={editCellClass}>
+                      <input
+                        name="uid"
+                        value={editData.uid || ""}
                         onChange={handleEditChange}
                         className="border rounded px-2 py-1 w-24"
                       />
                     </td>
                     <td className={editCellClass}>
                       <input
-                        name="district"
-                        value={editData.district || ""}
+                        name="email"
+                        type="email"
+                        value={editData.email || ""}
                         onChange={handleEditChange}
-                        className="border rounded px-2 py-1 w-24"
+                        className="border rounded px-2 py-1 w-40"
                       />
                     </td>
                     <td className={editCellClass}>
                       <input
-                        name="holding"
-                        value={editData.holding || ""}
+                        name="password"
+                        type="password"
+                        value={editData.password || ""}
                         onChange={handleEditChange}
-                        className="border rounded px-2 py-1 w-20"
+                        className="border rounded px-2 py-1 w-32"
                       />
                     </td>
                     <td className={editCellClass}>
                       <input
-                        name="khatian"
-                        value={editData.khatian || ""}
+                        name="isVerified"
+                        type="checkbox"
+                        checked={editData.isVerified || false}
                         onChange={handleEditChange}
-                        className="border rounded px-2 py-1 w-20"
-                      />
-                    </td>
-                    <td className={editCellClass}>
-                      <input
-                        name="officer"
-                        value={editData.officer || ""}
-                        onChange={handleEditChange}
-                        className="border rounded px-2 py-1 w-24"
-                      />
-                    </td>
-                    <td className={editCellClass}>
-                      <input
-                        name="mouza"
-                        value={editData.mouza || ""}
-                        onChange={handleEditChange}
-                        className="border rounded px-2 py-1 w-20"
-                      />
-                    </td>
-                    <td className={editCellClass}>
-                      <input
-                        name="year"
-                        value={editData.year || ""}
-                        onChange={handleEditChange}
-                        className="border rounded px-2 py-1 w-16"
+                        className="w-4 h-4"
                       />
                     </td>
                     <td className={editCellClass}>
@@ -173,13 +154,13 @@ const LandTaxRecords: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <td className={tableCellClass}>{rec.thana}</td>
-                    <td className={tableCellClass}>{rec.district}</td>
-                    <td className={tableCellClass}>{rec.holding}</td>
-                    <td className={tableCellClass}>{rec.khatian}</td>
-                    <td className={tableCellClass}>{rec.officer}</td>
-                    <td className={tableCellClass}>{rec.mouza}</td>
-                    <td className={tableCellClass}>{rec.year}</td>
+                    <td className={tableCellClass}>{rec.cookies}</td>
+                    <td className={tableCellClass}>{rec.uid}</td>
+                    <td className={tableCellClass}>{rec.email}</td>
+                    <td className={tableCellClass}>{rec.password}</td>
+                    <td className={tableCellClass}>
+                      {rec.isVerified ? "Yes" : "No"}
+                    </td>
                     <td className={tableCellClass}>
                       <div className="flex items-center gap-2">
                         <button
@@ -195,7 +176,7 @@ const LandTaxRecords: React.FC = () => {
                           <Trash className="w-4 h-4" />
                         </button>
                         <Link
-                          to={`/dashboard/land-tax-records/${rec.id}`}
+                          to={`/dashboard/task-records/${rec.id}`}
                           className="bg-gray-500 text-white hover:bg-gray-600 px-2 py-1 rounded transition flex items-center gap-1"
                         >
                           <View className="w-4 h-4" />
@@ -213,4 +194,4 @@ const LandTaxRecords: React.FC = () => {
   );
 };
 
-export default LandTaxRecords;
+export default TasksRecords;

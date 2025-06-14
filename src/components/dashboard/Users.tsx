@@ -5,7 +5,7 @@ interface User {
   id: number;
   name: string;
   email: string;
-  role: "Admin" | "User" | "Moderator";
+  role: "Team Leader" | "User" | "Moderator";
   status: "Active" | "Inactive";
 }
 
@@ -38,13 +38,13 @@ const ConfirmationModal: React.FC<ModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
           >
-            বাতিল
+            Cancel
           </button>
           <button
             onClick={onConfirm}
             className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
           >
-            নিশ্চিত করুন
+            Confirm
           </button>
         </div>
       </div>
@@ -57,7 +57,7 @@ const initialUsers: User[] = [
     id: 1,
     name: "Rayhan Kabir",
     email: "rayhan@example.com",
-    role: "Admin",
+    role: "Team Leader",
     status: "Active",
   },
   {
@@ -74,6 +74,13 @@ const initialUsers: User[] = [
     role: "Moderator",
     status: "Active",
   },
+  {
+    id: 4,
+    name: "Rakib Hasan",
+    email: "rakib@example.com",
+    role: "User",
+    status: "Active",
+  },
 ];
 
 const tableCellClass =
@@ -84,7 +91,7 @@ const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
-    action: "delete" | "removeAdmin" | "makeAdmin" | null;
+    action: "delete" | "removeLeader" | "makeLeader" | null;
     userId: number | null;
   }>({
     isOpen: false,
@@ -93,7 +100,7 @@ const Users: React.FC = () => {
   });
 
   const openModal = (
-    action: "delete" | "removeAdmin" | "makeAdmin",
+    action: "delete" | "removeLeader" | "makeLeader",
     userId: number
   ) => {
     setModalState({
@@ -115,25 +122,27 @@ const Users: React.FC = () => {
     if (modalState.userId) {
       if (modalState.action === "delete") {
         removeUser(modalState.userId);
-      } else if (modalState.action === "removeAdmin") {
-        removeAdmin(modalState.userId);
-      } else if (modalState.action === "makeAdmin") {
-        makeAdmin(modalState.userId);
+      } else if (modalState.action === "removeLeader") {
+        removeLeader(modalState.userId);
+      } else if (modalState.action === "makeLeader") {
+        makeLeader(modalState.userId);
       }
     }
     closeModal();
   };
 
-  const makeAdmin = (id: number) => {
+  const makeLeader = (id: number) => {
     setUsers(
-      users.map((user) => (user.id === id ? { ...user, role: "Admin" } : user))
+      users.map((user) =>
+        user.id === id ? { ...user, role: "Team Leader" } : user
+      )
     );
   };
 
-  const removeAdmin = (id: number) => {
+  const removeLeader = (id: number) => {
     setUsers(
       users.map((user) =>
-        user.id === id && user.role === "Admin"
+        user.id === id && user.role === "Team Leader"
           ? { ...user, role: "User" }
           : user
       )
@@ -150,18 +159,18 @@ const Users: React.FC = () => {
 
     if (modalState.action === "delete") {
       return {
-        title: "ব্যবহারকারী মুছে ফেলুন",
-        message: `আপনি কি নিশ্চিত যে আপনি ${user.name} কে মুছে ফেলতে চান?`,
+        title: "Delete User",
+        message: `Are you sure you want to delete ${user.name}?`,
       };
-    } else if (modalState.action === "removeAdmin") {
+    } else if (modalState.action === "removeLeader") {
       return {
-        title: "অ্যাডমিন অধিকার প্রত্যাহার",
-        message: `আপনি কি নিশ্চিত যে আপনি ${user.name} এর অ্যাডমিন অধিকার প্রত্যাহার করতে চান?`,
+        title: "Remove Team Leader",
+        message: `Are you sure you want to remove ${user.name}'s Team Leader role?`,
       };
     } else {
       return {
-        title: "অ্যাডমিন হিসেবে নিয়োগ",
-        message: `আপনি কি নিশ্চিত যে আপনি ${user.name} কে অ্যাডমিন হিসেবে নিয়োগ করতে চান?`,
+        title: "Assign Team Leader",
+        message: `Are you sure you want to assign ${user.name} as Team Leader?`,
       };
     }
   };
@@ -190,17 +199,17 @@ const Users: React.FC = () => {
                 <td className={tableCellClass}>{user.role}</td>
                 <td className={tableCellClass}>{user.status}</td>
                 <td className={tableCellClass + " space-x-1"}>
-                  {user.role !== "Admin" && (
+                  {user.role !== "Team Leader" && (
                     <button
-                      onClick={() => openModal("makeAdmin", user.id)}
+                      onClick={() => openModal("makeLeader", user.id)}
                       className="bg-primary text-primary-foreground hover:bg-primary/90 px-2 py-1 rounded transition"
                     >
                       <UserPlus className="w-4 h-4" />
                     </button>
                   )}
-                  {user.role === "Admin" && (
+                  {user.role === "Team Leader" && (
                     <button
-                      onClick={() => openModal("removeAdmin", user.id)}
+                      onClick={() => openModal("removeLeader", user.id)}
                       className="bg-yellow-500 text-white hover:bg-yellow-600 px-2 py-1 rounded transition"
                     >
                       <Trash className="w-4 h-4" />

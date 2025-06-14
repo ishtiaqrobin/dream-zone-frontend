@@ -15,7 +15,7 @@ import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, User } from "lucide-react";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
+  const [emailOrNumber, setEmailOrNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useAuth();
@@ -26,7 +26,7 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!emailOrNumber || !password) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -35,7 +35,7 @@ const LoginPage = () => {
       return;
     }
 
-    const success = await login(email, password);
+    const success = await login(emailOrNumber, password);
 
     if (success) {
       toast({
@@ -76,13 +76,13 @@ const LoginPage = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email or Number</Label>
                 <Input
                   id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  placeholder="Enter your email or number"
+                  value={emailOrNumber}
+                  onChange={(e) => setEmailOrNumber(e.target.value)}
                   className="transition-colors"
                 />
               </div>

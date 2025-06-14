@@ -10,6 +10,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface SettingsTab {
   id: string;
@@ -37,6 +38,7 @@ const settingsTabs: SettingsTab[] = [
 ];
 
 const Settings: React.FC = () => {
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("profile");
   const [name, setName] = useState("Rayhan Kabir");
   const [email, setEmail] = useState("rayhan@example.com");
@@ -75,8 +77,8 @@ const Settings: React.FC = () => {
     alert("Settings updated (fake)");
   };
 
-  const renderTabContent = () => {
-    switch (activeTab) {
+  const renderTabContent = (tab: SettingsTab) => {
+    switch (tab.id) {
       case "profile":
         return (
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -264,8 +266,10 @@ const Settings: React.FC = () => {
                 <input
                   type="checkbox"
                   className="sr-only peer"
-                  checked={darkMode}
-                  onChange={(e) => setDarkMode(e.target.checked)}
+                  checked={theme === "dark"}
+                  onChange={() =>
+                    setTheme(theme === "light" ? "dark" : "light")
+                  }
                 />
                 <div className={toggleSwitchClass}></div>
               </label>
@@ -305,7 +309,9 @@ const Settings: React.FC = () => {
         {/* Settings Content */}
         <div className="flex-1">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-            {renderTabContent()}
+            {renderTabContent(
+              settingsTabs.find((t) => t.id === activeTab) || settingsTabs[0]
+            )}
           </div>
         </div>
       </div>

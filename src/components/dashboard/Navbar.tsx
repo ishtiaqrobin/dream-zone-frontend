@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
-import { Menu, LogOut, User, Settings } from "lucide-react";
+import { Menu, LogOut, User, Settings, ListTodo } from "lucide-react";
 import {
   useNavigate,
   useLocation,
@@ -115,6 +115,17 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
               >
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem className="cursor-pointer">
+              <Link
+                to="/dashboard/tasks"
+                className="flex items-center w-full"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <ListTodo className="mr-2 h-4 w-4" />
+                <span>Tasks</span>
               </Link>
             </DropdownMenuItem>
 

@@ -91,7 +91,7 @@ const Analytics: React.FC = () => {
 
       <div className="bg-card rounded-lg shadow-sm border border-border text-foreground p-6 dark:bg-gray-900 dark:border-gray-700">
         <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">
-          Land Tax Records (Last 6 Months)
+          Task Records (Last 6 Months)
         </h3>
         <div className="w-full overflow-x-auto">
           <table className="min-w-full text-center">

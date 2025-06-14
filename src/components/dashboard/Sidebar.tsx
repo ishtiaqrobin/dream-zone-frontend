@@ -27,13 +27,13 @@ const navigationItems = [
     icon: LayoutDashboard,
   },
   {
-    name: "Create Land Tax",
-    href: "/dashboard/create-land-tax",
+    name: "Submit Tasks",
+    href: "/dashboard/submit-tasks",
     icon: SquarePlus,
   },
   {
-    name: "Land Tax Records",
-    href: "/dashboard/land-tax-records",
+    name: "Task Records",
+    href: "/dashboard/task-records",
     icon: FileText,
   },
   {
@@ -90,7 +90,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               <div className="w-8 h-8 flex items-center justify-center">
                 <img src="/logo.png" alt="logo" className="w-8 h-8" />
               </div>
-              <span className="font-semibold text-lg">Rayhan Kabir</span>
+              <span className="font-semibold text-lg">Dream Zone</span>
             </div>
             <Button
               variant="ghost"

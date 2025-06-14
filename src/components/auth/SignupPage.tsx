@@ -18,6 +18,8 @@ const SignupPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [number, setNumber] = useState("");
+  const [referral, setReferral] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { signup, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -102,6 +104,30 @@ const SignupPage = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="transition-colors"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="number">WhatsApp Number</Label>
+                <Input
+                  id="number"
+                  type="number"
+                  placeholder="Enter your whatsapp number"
+                  value={number}
+                  onChange={(e) => setNumber(e.target.value)}
+                  className="transition-colors"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="referral">Referral ID (Optional)</Label>
+                <Input
+                  id="referral"
+                  type="text"
+                  placeholder="Enter your referral ID"
+                  value={referral}
+                  onChange={(e) => setReferral(e.target.value)}
                   className="transition-colors"
                 />
               </div>
