@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:5000/api";
+// const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://dream-zone-backend.vercel.app/api";
 
 export const API_ENDPOINTS = {
   // Auth endpoints
