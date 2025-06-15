@@ -39,8 +39,8 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   const pathnames = location.pathname.split("/").filter((x) => x);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     toast({
       title: "Logged out",
       description: "You have been successfully logged out.",

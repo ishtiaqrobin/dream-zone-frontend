@@ -1,17 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Pencil, Save, Trash, View, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-interface FacebookAccount {
+interface AccountData {
   id: number;
   cookies: string;
   uid: string;
   email: string;
   password: string;
   isVerified: boolean;
+  type: string;
 }
 
-const initialRecords: FacebookAccount[] = [
+const initialRecords: AccountData[] = [
   {
     id: 1,
     cookies: "cookie123",
@@ -19,6 +20,7 @@ const initialRecords: FacebookAccount[] = [
     email: "user1@example.com",
     password: "********",
     isVerified: true,
+    type: "Facebook ID Sells",
   },
   {
     id: 2,
@@ -27,6 +29,16 @@ const initialRecords: FacebookAccount[] = [
     email: "user2@example.com",
     password: "********",
     isVerified: false,
+    type: "Gmail ID Sells",
+  },
+  {
+    id: 3,
+    cookies: "cookie789",
+    uid: "user789",
+    email: "user3@example.com",
+    password: "********",
+    isVerified: true,
+    type: "TikTok ID Sells",
   },
 ];
 
@@ -36,15 +48,26 @@ const tableHeaderClass = "bg-gray-100 dark:bg-gray-800 " + tableCellClass;
 const editCellClass = "border dark:border-gray-700 px-2 py-1";
 
 const TasksRecords: React.FC = () => {
-  const [records, setRecords] = useState<FacebookAccount[]>(initialRecords);
+  const location = useLocation();
+  const [records, setRecords] = useState<AccountData[]>(initialRecords);
   const [editId, setEditId] = useState<number | null>(null);
-  const [editData, setEditData] = useState<Partial<FacebookAccount>>({});
+  const [editData, setEditData] = useState<Partial<AccountData>>({});
+  const [selectedType, setSelectedType] = useState<string>("All");
+
+  // Get unique task types for filter
+  const taskTypes = ["All", ...new Set(records.map((record) => record.type))];
+
+  // Filter records based on selected type
+  const filteredRecords =
+    selectedType === "All"
+      ? records
+      : records.filter((record) => record.type === selectedType);
 
   const handleDelete = (id: number) => {
     setRecords(records.filter((rec) => rec.id !== id));
   };
 
-  const handleEdit = (rec: FacebookAccount) => {
+  const handleEdit = (rec: AccountData) => {
     setEditId(rec.id);
     setEditData({ ...rec });
   };
@@ -72,13 +95,32 @@ const TasksRecords: React.FC = () => {
 
   return (
     <div className="w-full p-8 bg-card rounded-lg shadow-sm border border-border text-foreground dark:bg-gray-900 dark:border-gray-700">
-      <h2 className="text-2xl font-semibold mb-6 text-black dark:text-white">
-        Facebook Account Records
-      </h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-black dark:text-white">
+          Account Records
+        </h2>
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium text-black dark:text-white">
+            Filter by Type:
+          </label>
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            className="border rounded px-3 py-1 text-black dark:text-white dark:bg-gray-800"
+          >
+            {taskTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
         <table className="min-w-full border dark:bg-gray-900 dark:border-gray-700">
           <thead>
             <tr>
+              <th className={tableHeaderClass}>Type</th>
               <th className={tableHeaderClass}>Cookies</th>
               <th className={tableHeaderClass}>User ID</th>
               <th className={tableHeaderClass}>Email</th>
@@ -88,10 +130,28 @@ const TasksRecords: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {records.map((rec) => (
+            {filteredRecords.map((rec) => (
               <tr key={rec.id}>
                 {editId === rec.id ? (
                   <>
+                    <td className={editCellClass}>
+                      <select
+                        name="type"
+                        value={editData.type || ""}
+                        onChange={(e) =>
+                          setEditData({ ...editData, type: e.target.value })
+                        }
+                        className="border rounded px-2 py-1 w-40"
+                      >
+                        {taskTypes
+                          .filter((type) => type !== "All")
+                          .map((type) => (
+                            <option key={type} value={type}>
+                              {type}
+                            </option>
+                          ))}
+                      </select>
+                    </td>
                     <td className={editCellClass}>
                       <input
                         name="cookies"
@@ -154,6 +214,7 @@ const TasksRecords: React.FC = () => {
                   </>
                 ) : (
                   <>
+                    <td className={tableCellClass}>{rec.type}</td>
                     <td className={tableCellClass}>{rec.cookies}</td>
                     <td className={tableCellClass}>{rec.uid}</td>
                     <td className={tableCellClass}>{rec.email}</td>

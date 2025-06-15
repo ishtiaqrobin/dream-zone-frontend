@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { API_ENDPOINTS } from "@/config/api";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
@@ -27,10 +28,10 @@ const SignupPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !number) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
@@ -45,18 +46,37 @@ const SignupPage = () => {
       return;
     }
 
-    const success = await signup(name, email, password);
+    try {
+      const response = await fetch(API_ENDPOINTS.auth.register, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          number,
+          referralId: referral || undefined,
+        }),
+      });
 
-    if (success) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+
       toast({
         title: "Account created!",
         description: "Welcome! Your account has been created successfully.",
       });
       navigate("/dashboard");
-    } else {
+    } catch (error) {
       toast({
         title: "Signup failed",
-        description: "Something went wrong. Please try again.",
+        description: error.message || "Something went wrong. Please try again.",
         variant: "destructive",
       });
     }

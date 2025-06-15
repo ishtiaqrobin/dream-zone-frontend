@@ -21,6 +21,7 @@ import Settings from "./components/dashboard/Settings";
 import AddUser from "./components/dashboard/AddUser";
 import BalanceManagement from "./components/dashboard/BalanceManagement";
 import Profile from "./components/dashboard/Profile";
+import Tasks from "./components/dashboard/Tasks";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
                 }
               >
                 <Route index element={<DashboardHome />} />
+                <Route path="tasks" element={<Tasks />} />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="users" element={<Users />} />
                 <Route path="reports" element={<Reports />} />

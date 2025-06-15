@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, User } from "lucide-react";
+import { API_ENDPOINTS } from "@/config/api";
 
 const LoginPage = () => {
   const [emailOrNumber, setEmailOrNumber] = useState("");
@@ -21,7 +22,6 @@ const LoginPage = () => {
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const pathnames = location.pathname.split("/").filter((x) => x);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,19 +35,34 @@ const LoginPage = () => {
       return;
     }
 
-    const success = await login(emailOrNumber, password);
+    try {
+      const response = await fetch(API_ENDPOINTS.auth.login, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ emailOrNumber, password }),
+      });
 
-    if (success) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      // Store user data in context/state
+      login(data.user);
+
       toast({
         title: "Welcome back!",
         description: "You have been successfully logged in.",
       });
       navigate("/dashboard");
-    } else {
+    } catch (error) {
       toast({
         title: "Login failed",
-        description:
-          "Invalid email or password. Try admin@example.com / password",
+        description: error.message || "Invalid credentials. Please try again.",
         variant: "destructive",
       });
     }
@@ -140,12 +155,6 @@ const LoginPage = () => {
               >
                 Sign up
               </Link>
-            </div>
-
-            <div className="mt-4 p-3 bg-muted rounded-lg text-sm">
-              <p className="text-muted-foreground">Demo credentials:</p>
-              <p>Email: admin@example.com</p>
-              <p>Password: password</p>
             </div>
           </CardContent>
         </Card>

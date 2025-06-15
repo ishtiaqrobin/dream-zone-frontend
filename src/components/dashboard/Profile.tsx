@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Camera,
   Mail,
@@ -8,6 +8,7 @@ import {
   Building,
   Save,
   X,
+  Upload,
 } from "lucide-react";
 
 interface ProfileData {
@@ -35,6 +36,7 @@ const Profile: React.FC = () => {
     useState<ProfileData>(initialProfileData);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<ProfileData>(initialProfileData);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleEdit = () => {
     setEditedData(profileData);
@@ -58,6 +60,26 @@ const Profile: React.FC = () => {
     });
   };
 
+  const handleImageClick = () => {
+    if (isEditing && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditedData({
+          ...editedData,
+          avatar: reader.result as string,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="w-full p-8 bg-card rounded-lg shadow-sm border border-border text-foreground dark:bg-gray-900 dark:border-gray-700">
       <div className="max-w-4xl mx-auto">
@@ -71,7 +93,7 @@ const Profile: React.FC = () => {
               className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded transition flex items-center gap-2"
             >
               <Camera className="w-4 h-4" />
-              Edit Profile
+              Edit <span className="hidden md:inline">Profile</span>
             </button>
           )}
         </div>
@@ -79,13 +101,30 @@ const Profile: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Profile Image */}
           <div className="flex flex-col items-center">
-            <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-primary mb-4">
+            <div
+              className={`w-48 h-48 rounded-full overflow-hidden border-4 border-primary mb-4 relative ${
+                isEditing ? "cursor-pointer group" : ""
+              }`}
+              onClick={handleImageClick}
+            >
               <img
-                src={profileData.avatar}
-                alt={profileData.name}
+                src={editedData.avatar}
+                alt={editedData.name}
                 className="w-full h-full object-cover"
               />
+              {isEditing && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Upload className="w-8 h-8 text-white" />
+                </div>
+              )}
             </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              accept="image/*"
+              className="hidden"
+            />
             {isEditing && (
               <div className="flex gap-2 mt-4">
                 <button
@@ -151,7 +190,7 @@ const Profile: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
-                  Phone
+                  WhatsApp Number
                 </label>
                 {isEditing ? (
                   <input

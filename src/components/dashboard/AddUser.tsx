@@ -28,7 +28,7 @@ const AddUser: React.FC = () => {
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div>
           <label className="block font-medium mb-1 text-black dark:text-white">
-            FullName
+            Full Name
           </label>
           <input
             type="text"
@@ -89,7 +89,7 @@ const AddUser: React.FC = () => {
           >
             <option value="User">User</option>
             <option value="Admin">Admin</option>
-            <option value="Moderator">Moderator</option>
+            <option value="Team Leader">Team Leader</option>
           </select>
         </div>
         <button

@@ -13,6 +13,8 @@ import {
   Plus,
   SquarePlus,
   DollarSign,
+  List,
+  ListTodo,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -27,9 +29,9 @@ const navigationItems = [
     icon: LayoutDashboard,
   },
   {
-    name: "Submit Tasks",
-    href: "/dashboard/submit-tasks",
-    icon: SquarePlus,
+    name: "Tasks",
+    href: "/dashboard/tasks",
+    icon: ListTodo,
   },
   {
     name: "Task Records",

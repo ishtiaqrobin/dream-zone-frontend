@@ -1,18 +1,20 @@
 "use client";
 
+import { API_ENDPOINTS } from "@/config/api";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 interface User {
   id: string;
   name: string;
   email: string;
+  number?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (userData: User) => void;
   signup: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -41,21 +43,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    if (email === "admin@example.com" && password === "password") {
-      const userData = { id: "1", name: "Admin User", email };
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-      setIsLoading(false);
-      return true;
-    }
-
-    setIsLoading(false);
-    return false;
+  const login = (userData: User) => {
+    // Store user data in context/state
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const signup = async (
@@ -64,19 +55,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     password: string
   ): Promise<boolean> => {
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const response = await fetch(API_ENDPOINTS.auth.register, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ name, email, password }),
+      });
 
-    const userData = { id: Date.now().toString(), name, email };
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
-    setIsLoading(false);
-    return true;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+
+      const userData = { id: data.user.id, name, email };
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setIsLoading(false);
+      return true;
+    } catch (error) {
+      setIsLoading(false);
+      return false;
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
+  const logout = async () => {
+    try {
+      await fetch(API_ENDPOINTS.auth.logout, {
+        method: "POST",
+        credentials: "include",
+      });
+      // Clear user data from context/state
+      setUser(null);
+      localStorage.removeItem("user");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (
