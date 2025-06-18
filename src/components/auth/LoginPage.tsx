@@ -1,3 +1,5 @@
+// components/auth/LoginPage.tsx
+
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -52,13 +54,26 @@ const LoginPage = () => {
       }
 
       // Store user data in context/state
-      login(data.user);
+      const userData = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        number: data.user.number,
+        role: data.user.role,
+        isVerified: data.user.isVerified,
+      };
+
+      // Login with user data and tokens
+      login(userData, {
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      });
 
       toast({
         title: "Welcome back!",
         description: "You have been successfully logged in.",
       });
-      navigate("/dashboard");
+      navigate("/home");
     } catch (error) {
       toast({
         title: "Login failed",

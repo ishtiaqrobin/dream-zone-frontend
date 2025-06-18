@@ -13,22 +13,30 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
-import { API_ENDPOINTS } from "@/config/api";
+import { API_ENDPOINTS, apiRequest } from "@/config/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 const SignupPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [number, setNumber] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [referral, setReferral] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [countryCode, setCountryCode] = useState("+880");
   const { signup, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !email || !password || !number) {
+    if (!name || !email || !password || !whatsapp) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -47,32 +55,30 @@ const SignupPage = () => {
     }
 
     try {
-      const response = await fetch(API_ENDPOINTS.auth.register, {
+      const data = await apiRequest(API_ENDPOINTS.auth.register, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         credentials: "include",
         body: JSON.stringify({
           name,
           email,
           password,
-          number,
+          number: `${countryCode}${whatsapp}`,
+          role: "User",
           referralId: referral || undefined,
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (data.user) {
+        toast({
+          title: "Account created!",
+          description:
+            data.message ||
+            "Welcome! Your account has been created successfully.",
+        });
+        navigate("/home");
+      } else {
         throw new Error(data.message || "Registration failed");
       }
-
-      toast({
-        title: "Account created!",
-        description: "Welcome! Your account has been created successfully.",
-      });
-      navigate("/dashboard");
     } catch (error) {
       toast({
         title: "Signup failed",
@@ -129,13 +135,32 @@ const SignupPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="number">WhatsApp Number</Label>
+                <label className="block font-medium mb-1 text-black dark:text-white">
+                  Country Code
+                </label>
+                <Select
+                  value={countryCode}
+                  onValueChange={(value) => setCountryCode(value)}
+                >
+                  <SelectTrigger className="w-full border rounded px-3 py-2 text-black dark:text-white dark:bg-gray-800">
+                    <SelectValue placeholder="Select Country Code" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="+880">+880 (Bangladesh)</SelectItem>
+                    <SelectItem value="+91">+91 (India)</SelectItem>
+                    <SelectItem value="+92">+92 (Pakistan)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="whatsapp">WhatsApp Number</Label>
                 <Input
-                  id="number"
+                  id="whatsapp"
                   type="number"
                   placeholder="Enter your whatsapp number"
-                  value={number}
-                  onChange={(e) => setNumber(e.target.value)}
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
                   className="transition-colors"
                 />
               </div>
@@ -145,7 +170,7 @@ const SignupPage = () => {
                 <Input
                   id="referral"
                   type="text"
-                  placeholder="Enter your referral ID"
+                  placeholder="Enter reffer ID"
                   value={referral}
                   onChange={(e) => setReferral(e.target.value)}
                   className="transition-colors"

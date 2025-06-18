@@ -101,3 +101,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide scrollbar for Chrome, Safari, Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  display: none !important;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+html,
+body {
+  -ms-overflow-style: none !important;
+  /* IE and Edge */
+  scrollbar-width: none !important;
+  /* Firefox */
+}

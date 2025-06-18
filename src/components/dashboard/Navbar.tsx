@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
-import { Menu, LogOut, User, Settings, ListTodo } from "lucide-react";
+import { Menu, LogOut, User, Settings, LayoutDashboard } from "lucide-react";
 import {
   useNavigate,
   useLocation,
@@ -27,6 +27,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import NotificationBell from "@/components/ui/notification-bell";
 
 interface NavbarProps {
   onMenuToggle: () => void;
@@ -85,14 +86,29 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
 
       <div className="flex items-center space-x-4">
         <ThemeToggle />
+        <NotificationBell />
 
         <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <Button
+              variant="ghost"
+              className="relative h-8 w-8 rounded-full p-0"
+            >
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                  {user?.name ? getInitials(user.name) : "U"}
-                </AvatarFallback>
+                {user?.avatar ? (
+                  <img
+                    src={
+                      user.avatar ||
+                      "https://api.dicebear.com/7.x/avataaars/svg?seed=Rayhan"
+                    }
+                    alt={user.name || "User"}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                    {user?.name ? getInitials(user.name) : "U"}
+                  </AvatarFallback>
+                )}
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
@@ -120,12 +136,12 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
 
             <DropdownMenuItem className="cursor-pointer">
               <Link
-                to="/dashboard/tasks"
+                to="/dashboard"
                 className="flex items-center w-full"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <ListTodo className="mr-2 h-4 w-4" />
-                <span>Tasks</span>
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <span>Dashboard</span>
               </Link>
             </DropdownMenuItem>
 

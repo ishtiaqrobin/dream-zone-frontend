@@ -15,6 +15,10 @@ import {
   DollarSign,
   List,
   ListTodo,
+  UserPlus,
+  ArrowDown,
+  ArrowUp,
+  AlertCircle,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -44,8 +48,23 @@ const navigationItems = [
     icon: Users,
   },
   {
+    name: "Add User",
+    href: "/dashboard/add-user",
+    icon: UserPlus,
+  },
+  {
+    name: "Activation Requests",
+    href: "/dashboard/activation-requests",
+    icon: AlertCircle,
+  },
+  {
     name: "Balance Management",
     href: "/dashboard/balance",
+    icon: DollarSign,
+  },
+  {
+    name: "My Balance",
+    href: "/dashboard/my-balance",
     icon: DollarSign,
   },
   {
@@ -87,22 +106,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 flex items-center justify-center">
-                <img src="/logo.png" alt="logo" className="w-8 h-8" />
+          <Link to="/" onClick={() => onToggle()}>
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <img src="/logo.png" alt="logo" className="w-8 h-8" />
+                </div>
+                <span className="font-semibold text-lg">Dream Zone</span>
               </div>
-              <span className="font-semibold text-lg">Dream Zone</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggle}
+                className="lg:hidden"
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggle}
-              className="lg:hidden"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
+          </Link>
 
           {/* Navigation */}
           <nav className="flex-1 p-4">

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Camera,
   Mail,
@@ -10,6 +10,9 @@ import {
   X,
   Upload,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { API_ENDPOINTS, apiRequest } from "@/config/api";
 
 interface ProfileData {
   name: string;
@@ -21,22 +24,86 @@ interface ProfileData {
   avatar: string;
 }
 
-const initialProfileData: ProfileData = {
-  name: "Rayhan Kabir",
-  email: "rayhan@example.com",
-  phone: "+880 1712-345678",
-  address: "123, Dhanmondi, Dhaka",
-  organization: "Dakhela Municipality",
-  role: "Admin",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rayhan",
-};
-
 const Profile: React.FC = () => {
+  const { user, updateUserData } = useAuth();
+  const { toast } = useToast();
+
+  const initialProfileData: ProfileData = {
+    name: user?.name || "",
+    email: user?.email || "",
+    phone: user?.number || "",
+    address: user?.address || "",
+    organization: user?.organization || "",
+    role: user?.role || "",
+    avatar:
+      user?.avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Rayhan",
+  };
+
   const [profileData, setProfileData] =
     useState<ProfileData>(initialProfileData);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<ProfileData>(initialProfileData);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        try {
+          const responseData = await apiRequest(
+            API_ENDPOINTS.auth.profile.get,
+            {
+              method: "GET",
+            }
+          );
+
+          if (responseData.user) {
+            const data = responseData.user;
+            setProfileData({
+              name: data.name || "",
+              email: data.email || "",
+              phone: data.number || "",
+              address: data.address || "",
+              organization: data.organization || "",
+              role: data.role || "",
+              avatar:
+                data.avatar ||
+                "https://api.dicebear.com/7.x/avataaars/svg?seed=Rayhan",
+            });
+            setEditedData({
+              name: data.name || "",
+              email: data.email || "",
+              phone: data.number || "",
+              address: data.address || "",
+              organization: data.organization || "",
+              role: data.role || "",
+              avatar:
+                data.avatar ||
+                "https://api.dicebear.com/7.x/avataaars/svg?seed=Rayhan",
+            });
+          } else {
+            toast({
+              title: "Error fetching profile",
+              description:
+                responseData.message || "Failed to load profile data.",
+              variant: "destructive",
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+          toast({
+            title: "Error",
+            description: "Failed to connect to the server for profile data.",
+            variant: "destructive",
+          });
+        }
+      };
+
+      fetchProfile();
+    } else {
+      setProfileData(initialProfileData);
+      setEditedData(initialProfileData);
+    }
+  }, [user]);
 
   const handleEdit = () => {
     setEditedData(profileData);
@@ -48,9 +115,44 @@ const Profile: React.FC = () => {
     setEditedData(profileData);
   };
 
-  const handleSave = () => {
-    setProfileData(editedData);
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      const responseData = await apiRequest(API_ENDPOINTS.auth.profile.update, {
+        method: "PUT",
+        body: JSON.stringify(editedData),
+      });
+
+      if (responseData.user) {
+        const data = responseData.user;
+        setProfileData({
+          name: data.name || "",
+          email: data.email || "",
+          phone: data.number || "",
+          address: data.address || "",
+          organization: data.organization || "",
+          role: data.role || "",
+          avatar:
+            data.avatar ||
+            "https://api.dicebear.com/7.x/avataaars/svg?seed=Rayhan",
+        });
+        setIsEditing(false);
+        toast({
+          title: "Profile Updated!",
+          description: "Your profile has been successfully updated.",
+        });
+        updateUserData(data);
+      } else {
+        throw new Error(responseData.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Update Failed",
+        description:
+          error.message || "Could not update profile. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,77 +1,80 @@
-import React, { useState } from "react";
-import { DollarSign, Plus, Minus, History } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { DollarSign, Plus, Minus, History, Check, X } from "lucide-react";
+import { API_ENDPOINTS, apiRequest } from "@/config/api";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface User {
-  id: number;
+  _id: string;
   name: string;
   email: string;
-  role: "Admin" | "User" | "Moderator";
+  role: string;
   balance: number;
 }
 
+interface WithdrawRequest {
+  _id: string;
+  userId: string;
+  userName: string;
+  amount: number;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+  paymentMethod: string;
+  accountDetails: string;
+  transactionId?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  rejectionReason?: string;
+}
+
 interface Transaction {
-  id: number;
-  userId: number;
+  _id: string;
+  userId: string;
   userName: string;
   type: "Add" | "Deduct";
   amount: number;
   date: string;
   description: string;
+  status: "completed" | "pending" | "failed";
 }
-
-const initialUsers: User[] = [
-  {
-    id: 1,
-    name: "Rayhan Kabir",
-    email: "rayhan@example.com",
-    role: "Admin",
-    balance: 1000,
-  },
-  {
-    id: 2,
-    name: "Fatema Begum",
-    email: "fatema@example.com",
-    role: "User",
-    balance: 200,
-  },
-  {
-    id: 3,
-    name: "Sakib Hasan",
-    email: "sakib@example.com",
-    role: "Moderator",
-    balance: 500,
-  },
-];
-
-const initialTransactions: Transaction[] = [
-  {
-    id: 1,
-    userId: 1,
-    userName: "Rayhan Kabir",
-    type: "Add",
-    amount: 500,
-    date: "2024-03-20",
-    description: "Initial balance",
-  },
-  {
-    id: 2,
-    userId: 2,
-    userName: "Fatema Begum",
-    type: "Add",
-    amount: 200,
-    date: "2024-03-20",
-    description: "Initial balance",
-  },
-];
 
 const tableCellClass =
   "border dark:border-gray-700 px-4 py-2 text-black dark:text-white";
 const tableHeaderClass = "bg-gray-100 dark:bg-gray-800 " + tableCellClass;
 
 const BalanceManagement: React.FC = () => {
-  const [users, setUsers] = useState<User[]>(initialUsers);
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(initialTransactions);
+  const { toast } = useToast();
+  const [users, setUsers] = useState<User[]>([]);
+  const [withdrawRequests, setWithdrawRequests] = useState<WithdrawRequest[]>(
+    []
+  );
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [amount, setAmount] = useState("");
@@ -80,6 +83,39 @@ const BalanceManagement: React.FC = () => {
     "Add"
   );
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [selectedRequest, setSelectedRequest] =
+    useState<WithdrawRequest | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [showRejectModal, setShowRejectModal] = useState(false);
+
+  // Fetch all data
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [usersRes, requestsRes, transactionsRes] = await Promise.all([
+        apiRequest(API_ENDPOINTS.auth.users.getAll({})),
+        apiRequest(API_ENDPOINTS.auth.users.getWithdrawRequests),
+        apiRequest(API_ENDPOINTS.auth.users.getTransactions),
+      ]);
+
+      setUsers(usersRes.users);
+      setWithdrawRequests(requestsRes.requests);
+      setTransactions(transactionsRes.transactions);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleOpenModal = (user: User) => {
     setSelectedUser(user);
@@ -98,45 +134,95 @@ const BalanceManagement: React.FC = () => {
     setError("");
   };
 
-  const handleTransaction = (e: React.FormEvent) => {
+  const handleTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedUser) return;
+
     const amt = parseFloat(amount);
     if (isNaN(amt) || amt <= 0) {
       setError("Please enter a valid amount");
       return;
     }
 
-    if (selectedUser) {
-      const newBalance =
-        transactionType === "Add"
-          ? selectedUser.balance + amt
-          : selectedUser.balance - amt;
-
-      if (newBalance < 0) {
-        setError("Insufficient balance");
-        return;
-      }
-
-      // Update user balance
-      setUsers(
-        users.map((u) =>
-          u.id === selectedUser.id ? { ...u, balance: newBalance } : u
-        )
+    try {
+      await apiRequest(
+        API_ENDPOINTS.auth.users.updateBalance(selectedUser._id),
+        {
+          method: "POST",
+          body: JSON.stringify({
+            amount: amt,
+            type: transactionType,
+            description: description || `${transactionType} balance`,
+          }),
+        }
       );
 
-      // Add transaction record
-      const newTransaction: Transaction = {
-        id: transactions.length + 1,
-        userId: selectedUser.id,
-        userName: selectedUser.name,
-        type: transactionType,
-        amount: amt,
-        date: new Date().toISOString().split("T")[0],
-        description: description || `${transactionType} balance`,
-      };
+      toast({
+        title: "Success",
+        description: `Balance ${
+          transactionType === "Add" ? "added" : "deducted"
+        } successfully`,
+      });
 
-      setTransactions([newTransaction, ...transactions]);
       handleCloseModal();
+      fetchData();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process transaction",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleApproveRequest = async (request: WithdrawRequest) => {
+    try {
+      await apiRequest(API_ENDPOINTS.auth.users.approveWithdraw(request._id), {
+        method: "POST",
+      });
+
+      toast({
+        title: "Success",
+        description: "Withdrawal request approved successfully",
+      });
+
+      fetchData();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to approve withdrawal request",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRejectRequest = async () => {
+    if (!selectedRequest) return;
+
+    try {
+      await apiRequest(
+        API_ENDPOINTS.auth.users.rejectWithdraw(selectedRequest._id),
+        {
+          method: "POST",
+          body: JSON.stringify({ reason: rejectionReason }),
+        }
+      );
+
+      toast({
+        title: "Success",
+        description: "Withdrawal request rejected successfully",
+      });
+
+      setShowRejectModal(false);
+      setSelectedRequest(null);
+      setRejectionReason("");
+      fetchData();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reject withdrawal request",
+        variant: "destructive",
+      });
     }
   };
 
@@ -148,160 +234,301 @@ const BalanceManagement: React.FC = () => {
         </h2>
       </div>
 
-      {/* Users Balance Table */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">
-          User Balances
-        </h3>
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
-          <table className="min-w-full border dark:bg-gray-900 dark:border-gray-700">
-            <thead>
-              <tr>
-                <th className={tableHeaderClass}>Name</th>
-                <th className={tableHeaderClass}>Email</th>
-                <th className={tableHeaderClass}>Role</th>
-                <th className={tableHeaderClass}>Balance</th>
-                <th className={tableHeaderClass}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td className={tableCellClass}>{user.name}</td>
-                  <td className={tableCellClass}>{user.email}</td>
-                  <td className={tableCellClass}>{user.role}</td>
-                  <td className={tableCellClass}>৳ {user.balance}</td>
-                  <td className={tableCellClass}>
-                    <button
-                      onClick={() => handleOpenModal(user)}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300 px-3 py-1 rounded transition flex items-center gap-1"
-                    >
-                      <DollarSign className="w-4 h-4" />
-                      Manage Balance
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <Tabs defaultValue="withdrawals" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="withdrawals">Withdrawal Requests</TabsTrigger>
+          <TabsTrigger value="users">User Balances</TabsTrigger>
+          <TabsTrigger value="transactions">Transaction History</TabsTrigger>
+        </TabsList>
 
-      {/* Transaction History */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">
-          Transaction History
-        </h3>
-        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
-          <table className="min-w-full border dark:bg-gray-900 dark:border-gray-700">
-            <thead>
-              <tr>
-                <th className={tableHeaderClass}>Date</th>
-                <th className={tableHeaderClass}>User</th>
-                <th className={tableHeaderClass}>Type</th>
-                <th className={tableHeaderClass}>Amount</th>
-                <th className={tableHeaderClass}>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((transaction) => (
-                <tr key={transaction.id}>
-                  <td className={tableCellClass}>{transaction.date}</td>
-                  <td className={tableCellClass}>{transaction.userName}</td>
-                  <td className={tableCellClass}>
-                    <span
-                      className={`inline-flex items-center gap-1 ${
-                        transaction.type === "Add"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {transaction.type === "Add" ? (
-                        <Plus className="w-4 h-4" />
-                      ) : (
-                        <Minus className="w-4 h-4" />
-                      )}
-                      {transaction.type}
-                    </span>
-                  </td>
-                  <td className={tableCellClass}>৳ {transaction.amount}</td>
-                  <td className={tableCellClass}>{transaction.description}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        <TabsContent value="withdrawals">
+          <Card>
+            <CardHeader>
+              <CardTitle>Pending Withdrawal Requests</CardTitle>
+              <CardDescription>
+                Review and process user withdrawal requests
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Payment Method</TableHead>
+                    <TableHead>Account Details</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {withdrawRequests.map((request) => (
+                    <TableRow key={request._id}>
+                      <TableCell>
+                        {new Date(request.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>{request.userName}</TableCell>
+                      <TableCell>৳ {request.amount}</TableCell>
+                      <TableCell>{request.paymentMethod}</TableCell>
+                      <TableCell>{request.accountDetails}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            request.status === "approved"
+                              ? "bg-green-100 text-green-800"
+                              : request.status === "rejected"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {request.status.charAt(0).toUpperCase() +
+                            request.status.slice(1)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {request.status === "pending" && (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 hover:text-green-700"
+                              onClick={() => handleApproveRequest(request)}
+                            >
+                              <Check className="w-4 h-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700"
+                              onClick={() => {
+                                setSelectedRequest(request);
+                                setShowRejectModal(true);
+                              }}
+                            >
+                              <X className="w-4 h-4 mr-1" />
+                              Reject
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="users">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Balances</CardTitle>
+              <CardDescription>
+                Manage user balances and transactions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Balance</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user._id}>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.role}</TableCell>
+                      <TableCell>৳ {user.balance}</TableCell>
+                      <TableCell>
+                        <Button
+                          onClick={() => handleOpenModal(user)}
+                          className="bg-primary text-primary-foreground hover:bg-primary/90"
+                        >
+                          <DollarSign className="w-4 h-4 mr-1" />
+                          Manage Balance
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="transactions">
+          <Card>
+            <CardHeader>
+              <CardTitle>Transaction History</CardTitle>
+              <CardDescription>View all balance transactions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map((transaction) => (
+                    <TableRow key={transaction._id}>
+                      <TableCell>{transaction.date}</TableCell>
+                      <TableCell>{transaction.userName}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-flex items-center gap-1 ${
+                            transaction.type === "Add"
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }`}
+                        >
+                          {transaction.type === "Add" ? (
+                            <Plus className="w-4 h-4" />
+                          ) : (
+                            <Minus className="w-4 h-4" />
+                          )}
+                          {transaction.type}
+                        </span>
+                      </TableCell>
+                      <TableCell>৳ {transaction.amount}</TableCell>
+                      <TableCell>{transaction.description}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            transaction.status === "completed"
+                              ? "bg-green-100 text-green-800"
+                              : transaction.status === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {transaction.status.charAt(0).toUpperCase() +
+                            transaction.status.slice(1)}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Transaction Modal */}
-      {showModal && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-card dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-sm border border-border dark:border-gray-700">
-            <h3 className="text-lg font-semibold mb-4 text-black dark:text-white">
-              Manage Balance for {selectedUser.name}
-            </h3>
-            <form onSubmit={handleTransaction} className="space-y-4">
-              <div>
-                <label className="block font-medium mb-1 text-black dark:text-white">
-                  Transaction Type
-                </label>
-                <select
-                  className="w-full border rounded px-3 py-2 text-black dark:text-white dark:bg-gray-800"
-                  value={transactionType}
-                  onChange={(e) =>
-                    setTransactionType(e.target.value as "Add" | "Deduct")
-                  }
-                >
-                  <option value="Add">Add Balance</option>
-                  <option value="Deduct">Deduct Balance</option>
-                </select>
-              </div>
-              <div>
-                <label className="block font-medium mb-1 text-black dark:text-white">
-                  Amount
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  className="w-full border rounded px-3 py-2 text-black dark:text-white dark:bg-gray-800"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Enter amount"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block font-medium mb-1 text-black dark:text-white">
-                  Description
-                </label>
-                <input
-                  type="text"
-                  className="w-full border rounded px-3 py-2 text-black dark:text-white dark:bg-gray-800"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter description"
-                />
-              </div>
-              {error && <div className="text-red-500 text-xs">{error}</div>}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="flex-1 bg-gray-500 text-white hover:bg-gray-600 py-2 rounded transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300 py-2 rounded transition"
-                >
-                  {transactionType === "Add" ? "Add Balance" : "Deduct Balance"}
-                </button>
-              </div>
-            </form>
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Manage Balance for {selectedUser?.name}</DialogTitle>
+            <DialogDescription>
+              Add or deduct balance for this user
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleTransaction} className="space-y-4">
+            <div className="grid gap-2">
+              <label>Transaction Type</label>
+              <select
+                className="w-full border rounded px-3 py-2"
+                value={transactionType}
+                onChange={(e) =>
+                  setTransactionType(e.target.value as "Add" | "Deduct")
+                }
+              >
+                <option value="Add">Add Balance</option>
+                <option value="Deduct">Deduct Balance</option>
+              </select>
+            </div>
+            <div className="grid gap-2">
+              <label>Amount</label>
+              <Input
+                type="number"
+                min="1"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="Enter amount"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <label>Description</label>
+              <Input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter description"
+              />
+            </div>
+            {error && <div className="text-red-500 text-sm">{error}</div>}
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCloseModal}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">
+                {transactionType === "Add" ? "Add Balance" : "Deduct Balance"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Modal */}
+      <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Withdrawal Request</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for rejecting this withdrawal request
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label>Rejection Reason</label>
+              <Input
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Enter reason for rejection"
+                required
+              />
+            </div>
           </div>
-        </div>
-      )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRejectModal(false);
+                setSelectedRequest(null);
+                setRejectionReason("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleRejectRequest}
+              disabled={!rejectionReason}
+            >
+              Reject Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

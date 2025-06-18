@@ -129,6 +129,41 @@ const DashboardHome = () => {
         ))}
       </div>
 
+      {/* Quick Actions */}
+      <Card className="dark:bg-gray-900 dark:border-gray-700">
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>
+            Frequently used actions for managing your application
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4">
+            <Button
+              asChild
+              className="bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300"
+            >
+              <Link to="/dashboard/add-user">
+                <Users className="mr-2 h-4 w-4" />
+                Add User
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/reports">
+                <Activity className="mr-2 h-4 w-4" />
+                View Reports
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/settings">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         {/* Chart Placeholder */}
         <Card className="col-span-4 dark:bg-gray-900 dark:border-gray-700">
@@ -200,41 +235,6 @@ const DashboardHome = () => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Quick Actions */}
-      <Card className="dark:bg-gray-900 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Frequently used actions for managing your application
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <Button
-              asChild
-              className="bg-primary text-primary-foreground hover:bg-primary/90 dark:bg-gray-200 dark:text-black dark:hover:bg-gray-300"
-            >
-              <Link to="/dashboard/add-user">
-                <Users className="mr-2 h-4 w-4" />
-                Add User
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/dashboard/reports">
-                <Activity className="mr-2 h-4 w-4" />
-                View Reports
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/dashboard/settings">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

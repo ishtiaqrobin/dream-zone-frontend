@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Save,
   User,
@@ -9,8 +9,25 @@ import {
   Sun,
   Eye,
   EyeOff,
+  AlertTriangle,
+  Mail,
 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { API_ENDPOINTS, apiRequest } from "@/config/api";
+import { toast } from "@/hooks/use-toast";
 
 interface SettingsTab {
   id: string;
@@ -39,9 +56,11 @@ const settingsTabs: SettingsTab[] = [
 
 const Settings: React.FC = () => {
   const { theme, setTheme } = useTheme();
+  const { user, updateUserData, logout } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
-  const [name, setName] = useState("Rayhan Kabir");
-  const [email, setEmail] = useState("rayhan@example.com");
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
   const [password, setPassword] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState({
@@ -71,10 +90,93 @@ const Settings: React.FC = () => {
   const passwordToggleButtonClass =
     "absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+
+  // Load user data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await apiRequest(API_ENDPOINTS.auth.profile.get, {
+          method: "GET",
+        });
+
+        if (response.user) {
+          const userData = response.user;
+          setName(userData.name || user?.name || "");
+          setEmail(userData.email || user?.email || "");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load user data.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchUserData();
+  }, [user]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // এখানে ভবিষ্যতে API call করা যাবে
-    alert("Settings updated (fake)");
+    try {
+      const responseData = await apiRequest(API_ENDPOINTS.auth.profile.update, {
+        method: "PUT",
+        body: JSON.stringify({
+          name,
+          email,
+        }),
+      });
+
+      if (responseData.user) {
+        const data = responseData.user;
+        setName(data.name || "");
+        setEmail(data.email || "");
+        toast({
+          title: "Profile Updated!",
+          description: "Your profile has been successfully updated.",
+        });
+        updateUserData(data);
+      } else {
+        throw new Error(responseData.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Update Failed",
+        description:
+          error.message || "Could not update profile. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      // এখানে ভবিষ্যতে API call করা যাবে
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    }
+  };
+
+  const handleVerifyEmail = async () => {
+    try {
+      // এখানে API call করা যাবে ইমেইল ভেরিফিকেশনের জন্য
+      // উদাহরণস্বরূপ:
+      // const response = await fetch('/api/verify-email', { method: 'POST', body: JSON.stringify({ email }) });
+      // const data = await response.json();
+      // if (response.ok) { setIsEmailVerified(true); alert('Verification email sent!'); }
+
+      // For now, simulate success after a delay
+      alert("Verification email sent! Please check your inbox.");
+      setIsEmailVerified(true); // Simulate successful verification
+    } catch (error) {
+      console.error("Email verification failed:", error);
+      alert("Failed to send verification email. Please try again.");
+    }
   };
 
   const renderTabContent = (tab: SettingsTab) => {
@@ -101,6 +203,38 @@ const Settings: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
               />
+            </div>
+            {/* Email Verification Section */}
+            <div className="pt-6 border-t border-border dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-black dark:text-white mb-4">
+                Email Verification
+              </h3>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-600 dark:text-blue-400">
+                      {isEmailVerified
+                        ? "Email Verified"
+                        : "Email Not Verified"}
+                    </h4>
+                    <p className="text-sm text-blue-600/80 dark:text-blue-400/80 mt-1">
+                      {isEmailVerified
+                        ? "Your email address has been successfully verified."
+                        : "Please verify your email address to unlock all features."}
+                    </p>
+                    {!isEmailVerified && (
+                      <button
+                        type="button"
+                        onClick={handleVerifyEmail}
+                        className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
+                      >
+                        Verify Email
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             <button type="submit" className={buttonClass}>
               <Save className="w-4 h-4" /> Update Profile
@@ -174,6 +308,57 @@ const Settings: React.FC = () => {
                     <Eye className="h-4 w-4" />
                   )}
                 </button>
+              </div>
+            </div>
+            {/* Danger Zone */}
+            <div className="pt-6 border-t border-border dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">
+                Danger Zone
+              </h3>
+              <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-red-600 dark:text-red-400">
+                      Delete Account
+                    </h4>
+                    <p className="text-sm text-red-600/80 dark:text-red-400/80 mt-1">
+                      Once you delete your account, there is no going back.
+                      Please be certain.
+                    </p>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          type="button"
+                          className="mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition"
+                        >
+                          Delete Account
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete your account and remove your data from our
+                            servers.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleDeleteAccount}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete Account
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
               </div>
             </div>
             <button type="submit" className={buttonClass}>
